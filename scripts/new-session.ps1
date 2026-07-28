@@ -65,10 +65,18 @@ Write-Host ''
 Write-Host "  cd $worktree"
 Write-Host "  npm run web -- --port $port"
 Write-Host ''
+$registry = Join-Path $repoRoot 'working.md'
+if (-not (Test-Path $registry)) {
+  Write-Host "Note: no registry at $registry yet - create it from the template in docs/PARALLEL-SESSIONS.md section 5." -ForegroundColor Yellow
+  Write-Host ''
+}
+
 Write-Host 'Opening prompt for this session:' -ForegroundColor Cyan
 Write-Host ''
-Write-Host "  You are the $Stream session for this project. Read docs/PARALLEL-SESSIONS.md,"
-Write-Host '  docs/PLAN.md, and working.md first. You own only the paths listed for your'
-Write-Host '  stream - if you need a change outside them, note it in working.md and raise it'
-Write-Host '  rather than editing. Register your scope in working.md before starting.'
+Write-Host "  You are the $Stream session for this project. Read docs/PARALLEL-SESSIONS.md and"
+Write-Host "  docs/PLAN.md here, and the registry at $registry - it is"
+Write-Host '  gitignored, so it is not in this worktree; use that path and do not create a local'
+Write-Host '  copy. You own only the paths listed for your stream - if you need a change outside'
+Write-Host '  them, note it in the registry and raise it rather than editing. Register your scope'
+Write-Host '  there before starting, and run npm test and npm run typecheck before you merge.'
 Write-Host ''

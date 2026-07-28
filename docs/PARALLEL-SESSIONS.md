@@ -93,11 +93,20 @@ rebase before continuing.
 
 ## 5. The registry
 
-`working.md` at the repo root (gitignored) is the shared whiteboard: who is doing what, right
-now. Every session updates its own row when it starts and when it lands something.
+`working.md` is the shared whiteboard: who is doing what, right now. Every session updates its
+own row when it starts and when it lands something.
 
 It is gitignored deliberately — it is coordination state, not project history, and committing
 it would itself become a merge conflict on every branch.
+
+**It therefore lives in exactly one place: the primary worktree.** Being gitignored, it is not
+copied into the stream worktrees, so a session that looks for `./working.md` will not find one
+and must not create one — a second copy is worse than none, because two sessions would then be
+coordinating against different whiteboards. Read and edit it at its absolute path:
+
+```
+C:\Users\there\Downloads\Projects\time-and-time-again\working.md
+```
 
 Each session should read it at the start of a task and before merging.
 
@@ -122,12 +131,16 @@ git merge --no-ff stream/identity
 ## 7. Briefing a session
 
 Give each session its stream name, and point it at three things: this file, `docs/PLAN.md`,
-and `working.md`. The opening prompt that works:
+and the registry — the last one by absolute path, since it is not in the worktree (§5).
+`new-session.ps1` prints this prompt with the right path already filled in:
 
-> You are the **\<stream\>** session for this project. Read `docs/PARALLEL-SESSIONS.md`,
-> `docs/PLAN.md`, and `working.md` first. You own only the paths listed for your stream — if
-> you need a change outside them, note it in `working.md` and raise it rather than editing.
-> Register your scope in `working.md` before starting.
+> You are the **\<stream\>** session for this project. Read `docs/PARALLEL-SESSIONS.md` and
+> `docs/PLAN.md` here, and the registry at
+> `C:\Users\there\Downloads\Projects\time-and-time-again\working.md` — it is gitignored, so it
+> is not in this worktree; use that path and do not create a local copy. You own only the
+> paths listed for your stream — if you need a change outside them, note it in the registry
+> and raise it rather than editing. Register your scope there before starting, and run
+> `npm test` and `npm run typecheck` before you merge.
 
 ## 8. The shared test baseline — done
 
