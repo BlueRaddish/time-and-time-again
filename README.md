@@ -33,15 +33,24 @@ npm run android    # device or emulator
 npm run ios        # requires macOS, or use EAS
 ```
 
-Typecheck with `npx tsc --noEmit`.
+```bash
+npm test           # Jest, once
+npm run test:watch # while working
+npm run typecheck  # tsc --noEmit
+```
+
+Both `npm test` and `npm run typecheck` must be clean before anything merges — see
+[`docs/PARALLEL-SESSIONS.md`](docs/PARALLEL-SESSIONS.md) §8.
 
 ## Layout
 
 ```
 src/
   types/thing.ts        the Thing model and deriveThingType — the core of the app
+  types/thing.test.ts   the derived-type truth table, pinned
   lib/
     nl-parse.ts         natural-language capture ("dentist fri 3pm-4pm")
+    nl-parse.test.ts    capture rules, ranges, and known limitations
     time.ts             TimePoint construction and conversion
     views.ts            one predicate per view; every screen is a filter
     format.ts           display formatting, precision-aware

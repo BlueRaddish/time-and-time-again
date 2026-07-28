@@ -106,15 +106,15 @@ Each session should read it at the start of a task and before merging.
 - **Rebase on `main` at the start of every session**, and again immediately before merging.
 - **Merge when a vertical slice works, not when a phase finishes.** A branch that lives longer
   than about a day stops being parallel work and starts being a fork.
-- **Typecheck before merging**: `npx tsc --noEmit` must be clean. It is the only gate that
-  catches a shared-core change breaking another stream, since there are no tests yet.
+- **Both gates clean before merging**: `npm test` and `npm run typecheck`. Between them they
+  are what catches a shared-core change breaking another stream. See §8.
 - Merge into `main` directly. PR review between four sessions driven by one person is
   ceremony, not safety.
 
 ```powershell
 git fetch origin
 git rebase origin/main          # in the stream worktree
-npx tsc --noEmit
+npm test; npm run typecheck
 git switch main                 # in the primary worktree
 git merge --no-ff stream/identity
 ```
@@ -129,11 +129,36 @@ and `working.md`. The opening prompt that works:
 > you need a change outside them, note it in `working.md` and raise it rather than editing.
 > Register your scope in `working.md` before starting.
 
-## 8. First thing to do before splitting
+## 8. The shared test baseline — done
 
-There are no tests. With one session that is a known gap; with four it is a real hazard,
-because nothing will catch one stream breaking another's assumptions about the shared core.
+This section used to say "there are no tests, fix that before splitting." That is done:
+Jest (`jest-expo` preset) is set up on `main` with 60 tests over the two functions every
+stream depends on.
 
-**Set up Jest and cover `deriveThingType` and `parseCapture` on `main` before spinning up the
-worktrees.** They are pure functions, it is an hour of work, and it is the only automated
-signal the four streams will share.
+| File | Covers |
+| ---- | ------ |
+| `src/types/thing.test.ts` | the derived-type truth table, that precision and every other field are irrelevant to it, `isComplete`, `THING_TYPE_LABEL` |
+| `src/lib/nl-parse.test.ts` | the start-vs-end rule, day and time resolution, ranges, title cleanup, and the parser's known limitations |
+
+```bash
+npm test           # once
+npm run test:watch # while working
+npm run typecheck  # tsc --noEmit
+```
+
+**Both gates must be clean before you merge** — `npm test` and `npm run typecheck`. Together
+they are the only automated signal the streams share, and the only thing that will catch one
+stream breaking another's assumptions about the shared core.
+
+Two conventions in these tests are worth keeping if you add more:
+
+- **Fix `now`.** `nl-parse.test.ts` passes an explicit `now` (Monday 27 July 2026, 09:00
+  local) to every call, so nothing starts failing at midnight or next Friday.
+- **Never assert on a raw `at` string.** A timed TimePoint stores UTC, so
+  `at === '2026-07-31T15:00:00.000Z'` passes in exactly one timezone. Go back through
+  `toDate` and compare local calendar parts, which is the same round trip the UI makes.
+
+`nl-parse.test.ts` ends with a `known limitations` block that pins behaviour that is wrong-ish
+but deliberate — the parser reads only the *first* temporal expression, so "book by friday
+author" books a Friday. Those tests exist so that changing the behaviour is a visible decision
+rather than a silent regression. If you improve the parser, update them; don't delete them.
