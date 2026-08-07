@@ -185,36 +185,39 @@ consent-screen application — adding a scope later restarts verification.
 
 ---
 
-## 6. Timeline (~7–9 weeks part-time)
+## 6. Phase order
 
 Revised 2026-08-07 for the iOS drop and the Play testing requirement. Android and web only.
 
-| Phase | Work | Time | Status |
-| ----- | ---- | ---- | ------ |
-| 0 | Firebase/GCP project · publish the privacy policy · **submit the OAuth consent screen with both scopes** · Play account · `eas init` · line up 12 testers | 2–3 days | not started |
-| 1 | Core CRUD, local state, quick capture, the five views | 1 week | **done 2026-07-28** |
-| 2 | Firebase Auth: email/password + Google. **Ends by cutting the first closed-track Play build** | 3–4 days | not started |
-| 3 | Firestore sync, security rules, offline persistence | 1 week | not started |
-| 4 | Calendar + Tasks one-way sync (Cloud Function, refresh token, `invalid_grant` handling) | 1–1.5 weeks | not started |
-| 5 | Push notifications, polish, account deletion — in-app **and** the public request URL | 1 week | not started |
-| 6 | Play listing: icon, feature graphic, screenshots, copy, Data safety form | 2–3 days | not started |
-| 7 | Production-access application + Play review | up to 7 days' review | not started |
-| 8 | Web deploy via Firebase Hosting | 1–2 days, mostly done in phase 0 | not started |
+**No duration estimates.** Development happens on its own schedule; guessing at weeks only
+creates a number to feel behind. What matters is the *order*, and the two external waits
+below — those are the only deadlines here that are not self-imposed.
 
-Compressible to ~4 weeks of build at a daily pace — but see below: the finish date is no
-longer set by the code.
+| Phase | Work | Status |
+| ----- | ---- | ------ |
+| 0 | Firebase/GCP project · publish the privacy policy · **submit the OAuth consent screen with both scopes** · Play account · `eas init` · line up 12 testers | not started |
+| 1 | Core CRUD, local state, quick capture, the five views | **done 2026-07-28** |
+| 2 | Firebase Auth: email/password + Google. **Ends by cutting the first closed-track Play build** | not started |
+| 3 | Firestore sync, security rules, offline persistence | not started |
+| 4 | Calendar + Tasks one-way sync (Cloud Function, refresh token, `invalid_grant` handling) | not started |
+| 5 | Push notifications, polish, account deletion — in-app **and** the public request URL | not started |
+| 6 | Play listing: icon, feature graphic, screenshots, copy, Data safety form | not started |
+| 7 | Production-access application + Play review | not started |
+| 8 | Web deploy via Firebase Hosting — mostly already done in phase 0 | not started |
 
-### The two clocks now decide the end date
+### The two waits that are not yours to set
 
-| Clock | Length | Starts | Ends around |
-| ----- | ------ | ------ | ----------- |
-| OAuth verification | ~10 days quoted, 5+ weeks reported | phase 0 submission | week 1–5 |
-| Play closed test | 14 continuous days, then ≤7 days' review | first closed-track build, end of phase 2 | week 4–5 |
+| Wait | Length | Starts when |
+| ---- | ------ | ----------- |
+| OAuth verification | ~10 days quoted, 5+ weeks reported | the phase 0 consent screen is submitted |
+| Play closed test | 14 continuous days, then ≤7 days' review | the first closed-track build reaches 12 testers |
 
-Both are fixed waits that only start when you start them, and both run underneath phases 3–6
-if — and only if — they are started on schedule. **Started on time they cost nothing; started
-late they are added to the end.** That is the entire reason phase 0 exists as a phase and the
-reason phase 2 ends with a build rather than with polish.
+Both are fixed, both are imposed by someone else, and both only begin when you begin them.
+Started early they run underneath phases 3–6 and cost nothing. Started late they are pure
+addition at the end, because there is no remaining work to hide them behind. **That is the
+entire reason phase 0 exists as a phase, and the reason phase 2 ends with a build rather than
+with polish** — not a schedule, just an ordering that keeps other people's clocks off the
+critical path.
 
 **What changed from the original plan.** Phase 0 lost Apple enrolment and gained privacy-policy
 hosting, pulled forward from phase 8 because the consent screen cannot be submitted without a
