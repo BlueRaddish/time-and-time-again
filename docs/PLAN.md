@@ -131,6 +131,18 @@ wins specifically on the store-submission tooling.
   Build this early so it isn't a last-minute scramble before submission.
 - Firestore security rules scoped by `uid` so users can only read/write their own Things.
 
+### Correction (2026-08-07): iOS is dropped, so two of the three Apple rules lapse
+
+The App Store is not a target for this project — $99/yr is not worth it for one practice app.
+Sign in with Apple is therefore **not** required (that rule binds App Store submissions), and
+the Apple review buffer leaves phase 7.
+
+**Account deletion stays.** Google Play requires it independently of Apple: any app offering
+account creation must provide in-app deletion plus a publicly reachable deletion-request URL.
+Dropping iOS does not buy that back. Phase 2 should still keep the provider list as data so
+that adding Sign in with Apple later is an entry, not a rewrite. See
+[`PHASE-0.md`](PHASE-0.md) Track B.
+
 ---
 
 ## 5. Google Calendar integration
@@ -173,25 +185,50 @@ consent-screen application — adding a scope later restarts verification.
 
 ---
 
-## 6. Timeline (~8–10 weeks part-time)
+## 6. Phase order
 
-| Phase | Work | Time |
-| ----- | ---- | ---- |
-| 0 | Expo/Firebase/dev accounts setup (Apple Developer $99/yr, Google Play $25 one-time); **submit Google OAuth consent screen for review now** | 3–4 days |
-| 1 | Core to-do CRUD, local state, basic UI | 1 week |
-| 2 | Firebase Auth: email/password + Google + Apple sign-in | 4–6 days |
-| 3 | Firestore sync, security rules, offline persistence | 1 week |
-| 4 | Google Calendar one-way sync (Cloud Function, refresh token storage) | 1–1.5 weeks |
-| 5 | Push notifications, polish, account deletion flow | 1 week |
-| 6 | Store assets: icons, screenshots, privacy policy page, listing copy | 3–5 days |
-| 7 | Submission + review buffer (Apple review ~1–3 days; Play a few hours–days; Google OAuth verification runs in parallel from phase 0) | 1 week buffer |
-| 8 | Web deploy via Firebase Hosting | 2–3 days (overlaps earlier phases) |
+Revised 2026-08-07 for the iOS drop and the Play testing requirement. Android and web only.
 
-Compressible to ~4–5 weeks at a daily rather than part-time pace.
+**No duration estimates.** Development happens on its own schedule; guessing at weeks only
+creates a number to feel behind. What matters is the *order*, and the two external waits
+below — those are the only deadlines here that are not self-imposed.
 
-**Sequencing tip:** submit the Google OAuth consent screen for sensitive-scope
-verification in **phase 0**, not phase 4. It runs in the background while everything else
-gets built, and it's the one dependency whose timeline you don't control.
+| Phase | Work | Status |
+| ----- | ---- | ------ |
+| 0 | Firebase/GCP project · publish the privacy policy · **submit the OAuth consent screen with both scopes** · Play account · `eas init` · line up 12 testers | not started |
+| 1 | Core CRUD, local state, quick capture, the five views | **done 2026-07-28** |
+| 2 | Firebase Auth: email/password + Google. **Ends by cutting the first closed-track Play build** | not started |
+| 3 | Firestore sync, security rules, offline persistence | not started |
+| 4 | Calendar + Tasks one-way sync (Cloud Function, refresh token, `invalid_grant` handling) | not started |
+| 5 | Push notifications, polish, account deletion — in-app **and** the public request URL | not started |
+| 6 | Play listing: icon, feature graphic, screenshots, copy, Data safety form | not started |
+| 7 | Production-access application + Play review | not started |
+| 8 | Web deploy via Firebase Hosting — mostly already done in phase 0 | not started |
+
+### The two waits that are not yours to set
+
+| Wait | Length | Starts when |
+| ---- | ------ | ----------- |
+| OAuth verification | ~10 days quoted, 5+ weeks reported | the phase 0 consent screen is submitted |
+| Play closed test | 14 continuous days, then ≤7 days' review | the first closed-track build reaches 12 testers |
+
+Both are fixed, both are imposed by someone else, and both only begin when you begin them.
+Started early they run underneath phases 3–6 and cost nothing. Started late they are pure
+addition at the end, because there is no remaining work to hide them behind. **That is the
+entire reason phase 0 exists as a phase, and the reason phase 2 ends with a build rather than
+with polish** — not a schedule, just an ordering that keeps other people's clocks off the
+critical path.
+
+**What changed from the original plan.** Phase 0 lost Apple enrolment and gained privacy-policy
+hosting, pulled forward from phase 8 because the consent screen cannot be submitted without a
+live URL. Phase 2 lost Sign in with Apple. Phase 6 lost iOS screenshots. Phase 7 lost the
+Apple review buffer and gained the Play production-access application. The Play closed-test
+requirement was missed entirely when the original table was written — personal developer
+accounts created after 13 November 2023 must run a closed test with 12 testers opted in for
+14 continuous days before production access can even be applied for.
+
+Full checklist for both clocks, plus the exact consent-screen fields and scope
+justifications, is in [`PHASE-0.md`](PHASE-0.md).
 
 ---
 
@@ -204,3 +241,7 @@ gets built, and it's the one dependency whose timeline you don't control.
 | 2026-07-27 | `start`/`end` are a nested `TimePoint { at, precision }`, not four flat fields | An `at` without a precision is unrepresentable. Firestore indexes nested fields via `start.at`, so phase 3 is unaffected |
 | 2026-07-27 | camelCase field names everywhere, including Firestore documents | No snake_case↔camelCase mapping layer to get wrong |
 | 2026-07-27 | Date-only points store `YYYY-MM-DD`; timed points store UTC ISO | A date-only value has no zone to be wrong about, so "due the 5th" can't drift to the 4th west of UTC |
+| 2026-08-07 | Bundle id and Android package are both `com.blueraddish.timeandtimeagain` | Reverse-DNS on a namespace actually controlled. Free to change until the first store upload, permanent after — Play package names can never be renamed or reused |
+| 2026-08-07 | Privacy policy hosts on Firebase Hosting (`*.web.app`), pulled forward from phase 8 into phase 0 | `web.app` domains are automatically authorized for their own Firebase project, so no domain purchase and no Search Console verification sits on the critical path |
+| 2026-08-07 | Play's 12-tester / 14-day closed test is treated as a second uncontrolled clock | First closed-track build ships when phase 2 lands, not after phase 5 polish — the clock only requires an installable build |
+| 2026-08-07 | iOS and the Apple Developer Program are dropped; Android and web only | Deployment-only decision, no code removed. Sign in with Apple and the Apple review buffer lapse; in-app account deletion stays because Play requires it too. Phase 2 keeps the provider list as data so iOS stays cheap to re-add |

@@ -20,9 +20,12 @@ A light user types a title, presses enter, and never learns any of this exists.
 
 ## Stack
 
-Expo (React Native) + TypeScript, targeting all three platforms from one codebase. Firebase
-for auth, data, and hosting from phase 2 onward. Full plan, timeline, and decision log in
-[`docs/PLAN.md`](docs/PLAN.md).
+Expo (React Native) + TypeScript, from one codebase. Firebase for auth, data, and hosting
+from phase 2 onward. Full plan, timeline, and decision log in [`docs/PLAN.md`](docs/PLAN.md).
+
+**Shipping to Android and web.** iOS builds from the same source and runs fine locally, but
+is not a release target — the Apple Developer Program isn't worth $99/yr for one project. It
+can be picked up later without touching the code.
 
 ## Running it
 
