@@ -185,39 +185,47 @@ consent-screen application — adding a scope later restarts verification.
 
 ---
 
-## 6. Timeline (~8–10 weeks part-time)
+## 6. Timeline (~7–9 weeks part-time)
 
-| Phase | Work | Time |
-| ----- | ---- | ---- |
-| 0 | Expo/Firebase/dev accounts setup (Apple Developer $99/yr, Google Play $25 one-time); **submit Google OAuth consent screen for review now** | 3–4 days |
-| 1 | Core to-do CRUD, local state, basic UI | 1 week |
-| 2 | Firebase Auth: email/password + Google + Apple sign-in | 4–6 days |
-| 3 | Firestore sync, security rules, offline persistence | 1 week |
-| 4 | Google Calendar one-way sync (Cloud Function, refresh token storage) | 1–1.5 weeks |
-| 5 | Push notifications, polish, account deletion flow | 1 week |
-| 6 | Store assets: icons, screenshots, privacy policy page, listing copy | 3–5 days |
-| 7 | Submission + review buffer (Apple review ~1–3 days; Play a few hours–days; Google OAuth verification runs in parallel from phase 0) | 1 week buffer |
-| 8 | Web deploy via Firebase Hosting | 2–3 days (overlaps earlier phases) |
+Revised 2026-08-07 for the iOS drop and the Play testing requirement. Android and web only.
 
-Compressible to ~4–5 weeks at a daily rather than part-time pace.
+| Phase | Work | Time | Status |
+| ----- | ---- | ---- | ------ |
+| 0 | Firebase/GCP project · publish the privacy policy · **submit the OAuth consent screen with both scopes** · Play account · `eas init` · line up 12 testers | 2–3 days | not started |
+| 1 | Core CRUD, local state, quick capture, the five views | 1 week | **done 2026-07-28** |
+| 2 | Firebase Auth: email/password + Google. **Ends by cutting the first closed-track Play build** | 3–4 days | not started |
+| 3 | Firestore sync, security rules, offline persistence | 1 week | not started |
+| 4 | Calendar + Tasks one-way sync (Cloud Function, refresh token, `invalid_grant` handling) | 1–1.5 weeks | not started |
+| 5 | Push notifications, polish, account deletion — in-app **and** the public request URL | 1 week | not started |
+| 6 | Play listing: icon, feature graphic, screenshots, copy, Data safety form | 2–3 days | not started |
+| 7 | Production-access application + Play review | up to 7 days' review | not started |
+| 8 | Web deploy via Firebase Hosting | 1–2 days, mostly done in phase 0 | not started |
 
-**Sequencing tip:** submit the Google OAuth consent screen for sensitive-scope
-verification in **phase 0**, not phase 4. It runs in the background while everything else
-gets built, and it's the one dependency whose timeline you don't control.
+Compressible to ~4 weeks of build at a daily pace — but see below: the finish date is no
+longer set by the code.
 
-### Correction (2026-08-07): there are two such dependencies, not one
+### The two clocks now decide the end date
 
-Google Play requires personal developer accounts created after 13 November 2023 to run a
-**closed test with 12 testers opted in for 14 continuous days** before production access can
-even be applied for, and that application is then reviewed for up to 7 days. This was missed
-when the timeline above was written.
+| Clock | Length | Starts | Ends around |
+| ----- | ------ | ------ | ----------- |
+| OAuth verification | ~10 days quoted, 5+ weeks reported | phase 0 submission | week 1–5 |
+| Play closed test | 14 continuous days, then ≤7 days' review | first closed-track build, end of phase 2 | week 4–5 |
 
-It behaves exactly like OAuth verification — a fixed wait that only starts when you start it
-— so it gets the same treatment: **cut the first closed-track build as soon as phase 2 lands**
-rather than after phase 5. The clock requires an installable build, not a finished app.
+Both are fixed waits that only start when you start them, and both run underneath phases 3–6
+if — and only if — they are started on schedule. **Started on time they cost nothing; started
+late they are added to the end.** That is the entire reason phase 0 exists as a phase and the
+reason phase 2 ends with a build rather than with polish.
 
-Full checklist for both, plus the exact consent-screen fields and scope justifications, is in
-[`PHASE-0.md`](PHASE-0.md).
+**What changed from the original plan.** Phase 0 lost Apple enrolment and gained privacy-policy
+hosting, pulled forward from phase 8 because the consent screen cannot be submitted without a
+live URL. Phase 2 lost Sign in with Apple. Phase 6 lost iOS screenshots. Phase 7 lost the
+Apple review buffer and gained the Play production-access application. The Play closed-test
+requirement was missed entirely when the original table was written — personal developer
+accounts created after 13 November 2023 must run a closed test with 12 testers opted in for
+14 continuous days before production access can even be applied for.
+
+Full checklist for both clocks, plus the exact consent-screen fields and scope
+justifications, is in [`PHASE-0.md`](PHASE-0.md).
 
 ---
 
