@@ -195,15 +195,21 @@ below — those are the only deadlines here that are not self-imposed.
 
 | Phase | Work | Status |
 | ----- | ---- | ------ |
-| 0 | Firebase/GCP project · publish the privacy policy · **submit the OAuth consent screen with both scopes** · Play account · `eas init` · line up 12 testers | not started |
+| 0 | Firebase/GCP project · publish the privacy policy · **submit the OAuth consent screen with both scopes** · Play account · `eas init` · line up 12 testers | **not started — console work, blocks 2–4** |
 | 1 | Core CRUD, local state, quick capture, the five views | **done 2026-07-28** |
-| 2 | Firebase Auth: email/password + Google. **Ends by cutting the first closed-track Play build** | not started |
-| 3 | Firestore sync, security rules, offline persistence | not started |
-| 4 | Calendar + Tasks one-way sync (Cloud Function, refresh token, `invalid_grant` handling) | not started |
+| 2 | Firebase Auth: email/password + Google. **Ends by cutting the first closed-track Play build** | code done 2026-08-07; build not cut |
+| 3 | Firestore sync, security rules, offline persistence | code done 2026-08-07 |
+| 4 | Calendar + Tasks one-way sync (Cloud Function, refresh token, `invalid_grant` handling) | code done 2026-08-07 |
 | 5 | Push notifications, polish, account deletion — in-app **and** the public request URL | not started |
 | 6 | Play listing: icon, feature graphic, screenshots, copy, Data safety form | not started |
 | 7 | Production-access application + Play review | not started |
 | 8 | Web deploy via Firebase Hosting — mostly already done in phase 0 | not started |
+
+> **"Code done" is not "done".** Phases 2–4 are written, typechecked and unit-tested, but not
+> one line of them has ever spoken to a real Firebase project, because there isn't one. Every
+> claim they make about Google's actual behaviour — that the consent screen returns a refresh
+> token, that the rules reject a cross-user read, that an all-day event lands on the right day
+> — is unverified until phase 0 exists. Treat them as ready to test, not as working.
 
 ### The two waits that are not yours to set
 
