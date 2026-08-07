@@ -40,6 +40,9 @@ working.md
 # typescript
 *.tsbuildinfo
 
+# compiled Cloud Functions
+functions/lib/
+
 example
 
 # generated native folders
