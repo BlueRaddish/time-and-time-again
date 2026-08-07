@@ -1,0 +1,5 @@
+{
+  "//": "No composite indexes yet, and that is not an oversight. Every view in the app is a client-side filter over one list() of the user's own things (src/lib/views.ts), so Firestore only ever sees an unfiltered collection read, which needs no index. The single-field indexes Firestore creates automatically cover any future orderBy on start.at or end.at. Add entries here the first time a screen queries with both a where and an orderBy on different fields -- Firestore will fail that query with a console link that generates the exact entry.",
+  "indexes": [],
+  "fieldOverrides": []
+}
