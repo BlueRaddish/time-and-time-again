@@ -131,6 +131,18 @@ wins specifically on the store-submission tooling.
   Build this early so it isn't a last-minute scramble before submission.
 - Firestore security rules scoped by `uid` so users can only read/write their own Things.
 
+### Correction (2026-08-07): iOS is dropped, so two of the three Apple rules lapse
+
+The App Store is not a target for this project — $99/yr is not worth it for one practice app.
+Sign in with Apple is therefore **not** required (that rule binds App Store submissions), and
+the Apple review buffer leaves phase 7.
+
+**Account deletion stays.** Google Play requires it independently of Apple: any app offering
+account creation must provide in-app deletion plus a publicly reachable deletion-request URL.
+Dropping iOS does not buy that back. Phase 2 should still keep the provider list as data so
+that adding Sign in with Apple later is an entry, not a rewrite. See
+[`PHASE-0.md`](PHASE-0.md) Track B.
+
 ---
 
 ## 5. Google Calendar integration
@@ -221,3 +233,4 @@ Full checklist for both, plus the exact consent-screen fields and scope justific
 | 2026-08-07 | Bundle id and Android package are both `com.blueraddish.timeandtimeagain` | Reverse-DNS on a namespace actually controlled. Free to change until the first store upload, permanent after — Play package names can never be renamed or reused |
 | 2026-08-07 | Privacy policy hosts on Firebase Hosting (`*.web.app`), pulled forward from phase 8 into phase 0 | `web.app` domains are automatically authorized for their own Firebase project, so no domain purchase and no Search Console verification sits on the critical path |
 | 2026-08-07 | Play's 12-tester / 14-day closed test is treated as a second uncontrolled clock | First closed-track build ships when phase 2 lands, not after phase 5 polish — the clock only requires an installable build |
+| 2026-08-07 | iOS and the Apple Developer Program are dropped; Android and web only | Deployment-only decision, no code removed. Sign in with Apple and the Apple review buffer lapse; in-app account deletion stays because Play requires it too. Phase 2 keeps the provider list as data so iOS stays cheap to re-add |

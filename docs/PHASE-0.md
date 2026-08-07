@@ -125,17 +125,41 @@ Free. `npx eas init` in the repo to create the project and write `extra.eas.proj
 
 ---
 
-## Track B — Apple Developer ($99/yr)
+## Track B — Apple Developer — DROPPED (2026-08-07)
 
-Start enrollment now; it is not needed until phase 7 but individual enrolment can sit in
-identity verification for several days.
+**Not being done.** $99/yr recurring is not worth it for a single practice project. iOS
+becomes worthwhile only if there are other projects to amortise it across, at which point it
+gets picked up again.
 
-1. Enrol at <https://developer.apple.com/programs/> — $99/yr, requires a real legal name and
-   a payment method.
-2. Once approved, register the bundle ID `com.blueraddish.timeandtimeagain`.
-3. Nothing else is needed until phase 7. EAS handles certificates and provisioning.
+**This is a deployment decision, not an architecture one.** Nothing is removed from the code:
+Expo still targets iOS from the same source, `ios.bundleIdentifier` stays in `app.json`
+costing nothing, and the app can still be run on an iOS simulator by anyone with a Mac.
+Re-adding iOS later is: pay Apple, register the bundle id, `eas build -p ios`.
 
-**No Mac required at any point** — that was the reason for choosing Expo over Flutter.
+What actually drops from the plan:
+
+| Was | Now |
+| --- | --- |
+| Sign in with Apple in phase 2 | Dropped. The "offer Google Sign-In → must offer Apple" rule is an **App Store review** rule; with no App Store submission it does not apply |
+| Apple enrolment wait in phase 0 | Gone |
+| iOS screenshots and App Store listing copy in phase 6 | Gone |
+| Apple review buffer in phase 7 | Gone — Play only |
+
+**What does _not_ drop:** the **in-app account deletion flow**. That was listed as an Apple
+requirement, but Google Play requires it independently — any app offering account creation
+must provide in-app deletion *and* a publicly reachable deletion-request URL. So it stays in
+phase 5, and the URL goes on the same Firebase Hosting site as the privacy policy:
+
+```
+https://time-and-time-again.web.app/delete-account
+```
+
+### One thing to get right now so iOS stays cheap to re-add
+
+Phase 2 should treat the sign-in provider list as **data, not two hard-coded buttons**. If
+iOS is ever added while Google Sign-In is live, Sign in with Apple becomes mandatory, and
+adding a third provider to a list is trivial where unpicking a hard-wired pair is not. This
+costs nothing today.
 
 ---
 
@@ -187,6 +211,7 @@ Plan for it rather than debugging it twice:
 - [ ] Privacy policy live at a `web.app` URL, placeholders filled
 - [ ] Consent screen submitted with **both** scopes and a logo
 - [ ] `npx eas init` has written a project id into `app.json`
-- [ ] Apple Developer enrolment submitted
 - [ ] Play Console account created, and 12 testers identified by name
 - [ ] Demo video deferred to phase 4 — noted, not forgotten
+
+Apple Developer enrolment is deliberately absent — see Track B.
