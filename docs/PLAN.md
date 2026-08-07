@@ -193,6 +193,20 @@ Compressible to ~4–5 weeks at a daily rather than part-time pace.
 verification in **phase 0**, not phase 4. It runs in the background while everything else
 gets built, and it's the one dependency whose timeline you don't control.
 
+### Correction (2026-08-07): there are two such dependencies, not one
+
+Google Play requires personal developer accounts created after 13 November 2023 to run a
+**closed test with 12 testers opted in for 14 continuous days** before production access can
+even be applied for, and that application is then reviewed for up to 7 days. This was missed
+when the timeline above was written.
+
+It behaves exactly like OAuth verification — a fixed wait that only starts when you start it
+— so it gets the same treatment: **cut the first closed-track build as soon as phase 2 lands**
+rather than after phase 5. The clock requires an installable build, not a finished app.
+
+Full checklist for both, plus the exact consent-screen fields and scope justifications, is in
+[`PHASE-0.md`](PHASE-0.md).
+
 ---
 
 ## Decision log
@@ -204,3 +218,6 @@ gets built, and it's the one dependency whose timeline you don't control.
 | 2026-07-27 | `start`/`end` are a nested `TimePoint { at, precision }`, not four flat fields | An `at` without a precision is unrepresentable. Firestore indexes nested fields via `start.at`, so phase 3 is unaffected |
 | 2026-07-27 | camelCase field names everywhere, including Firestore documents | No snake_case↔camelCase mapping layer to get wrong |
 | 2026-07-27 | Date-only points store `YYYY-MM-DD`; timed points store UTC ISO | A date-only value has no zone to be wrong about, so "due the 5th" can't drift to the 4th west of UTC |
+| 2026-08-07 | Bundle id and Android package are both `com.blueraddish.timeandtimeagain` | Reverse-DNS on a namespace actually controlled. Free to change until the first store upload, permanent after — Play package names can never be renamed or reused |
+| 2026-08-07 | Privacy policy hosts on Firebase Hosting (`*.web.app`), pulled forward from phase 8 into phase 0 | `web.app` domains are automatically authorized for their own Firebase project, so no domain purchase and no Search Console verification sits on the critical path |
+| 2026-08-07 | Play's 12-tester / 14-day closed test is treated as a second uncontrolled clock | First closed-track build ships when phase 2 lands, not after phase 5 polish — the clock only requires an installable build |
