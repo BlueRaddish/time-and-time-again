@@ -238,6 +238,19 @@ justifications, is in [`PHASE-0.md`](PHASE-0.md).
 
 ---
 
+## Deferred
+
+Known and accepted, not forgotten. Each says what it costs to leave alone, so the choice to
+keep deferring stays an informed one.
+
+| # | Item | Why it can wait | Do it by |
+| - | ---- | --------------- | -------- |
+| D1 | **Offline writes do not survive a force-quit.** The Firestore SDK queues writes in memory and flushes on reconnect; kill the app before that and the write is lost, while the local mirror still shows it until the next successful read overwrites it. | Needs a real outbox — per-record sync state and conflict resolution — which is a subsystem, not a patch. Reads already work offline, which is the common case. | Phase 5, before the first closed-track build reaches testers |
+| D2 | **Swap the privacy-policy contact off a personal Gmail.** Currently `jeeholife2@gmail.com`. | Nothing is published yet, so nothing is exposed yet. | **Phase 6, before anything goes public.** Once live it is scraped and permanent, and changing the consent screen's support email can re-trigger OAuth verification |
+| D3 | **Expo 57.0.8 → 57.0.11** (11 packages behind). | Patch-level; nothing in phases 2–4 depends on it. | Before phase 5 — run `npx expo install --check` on a clean tree so any fallout is its own commit |
+| D4 | **Sign-in has no deep-linkable URL.** It is a gate component, not a route. | Nothing links to it today. | Whenever password reset or email verification lands — those arrive as links that must land somewhere |
+| D5 | **Timed anchors lose their time on the way to Google.** An anchor resolves to an all-day event, matching how a Task resolves to a due date. | Deliberate: one time point is a day, not an interval, and the app should not invent a duration. Exact inside the app either way. | Only if real use shows people want timed blocks — then it is a Layer 2 preference, not a default |
+
 ## Decision log
 
 | Date | Decision | Consequence |
@@ -251,3 +264,5 @@ justifications, is in [`PHASE-0.md`](PHASE-0.md).
 | 2026-08-07 | Privacy policy hosts on Firebase Hosting (`*.web.app`), pulled forward from phase 8 into phase 0 | `web.app` domains are automatically authorized for their own Firebase project, so no domain purchase and no Search Console verification sits on the critical path |
 | 2026-08-07 | Play's 12-tester / 14-day closed test is treated as a second uncontrolled clock | First closed-track build ships when phase 2 lands, not after phase 5 polish — the clock only requires an installable build |
 | 2026-08-07 | iOS and the Apple Developer Program are dropped; Android and web only | Deployment-only decision, no code removed. Sign in with Apple and the Apple review buffer lapse; in-app account deletion stays because Play requires it too. Phase 2 keeps the provider list as data so iOS stays cheap to re-add |
+| 2026-08-07 | Google sign-in uses `expo-auth-session`, not a native Google SDK | The native libraries support neither web nor Expo Go, and web is a release target. Costs Android's native credential sheet; buys one code path and the phase-4 authorization-code flow from the same library |
+| 2026-08-07 | An Anchor resolves to an all-day event, the same way a Task resolves to a due date | Both carry exactly one time point, so both resolve to a day. No invented duration. Timed anchors lose their time of day on the way out — see Deferred D5 |
