@@ -8,9 +8,6 @@
 
 import type { Thing, TimePoint } from './thing';
 
-/** Google requires end > start for a timed event. An Anchor has no end, so it gets a block. */
-export const ANCHOR_DURATION_MINUTES = 30;
-
 export type CalendarDate = { date: string } | { dateTime: string; timeZone: string };
 
 export type CalendarEvent = {
@@ -47,10 +44,6 @@ function endOfDayIso(day: string): string {
   return `${day}T23:59:59.000Z`;
 }
 
-function addMinutes(iso: string, minutes: number): string {
-  return new Date(new Date(iso).getTime() + minutes * 60_000).toISOString();
-}
-
 /**
  * An event is all-day only when *both* ends are date-only. Mixed precision — "starts Friday,
  * ends 3pm Saturday" — is representable in the model, and rounding it to all-day would throw
@@ -71,18 +64,23 @@ export function toCalendarEvent(thing: Thing, timeZone: string): CalendarEvent {
     ...(thing.notes ? { description: thing.notes } : {}),
   };
 
-  // Anchor: a start and no end.
+  /**
+   * Anchor: a start and no end — one time point, exactly like a Task has one time point.
+   * The two are treated the same way, and both resolve to a **day**.
+   *
+   * The alternative was to invent a duration for a timed anchor, because Google requires
+   * `end > start` on a timed event. But the user never said how long "start project monday
+   * 9am" lasts, and a 30-minute block is the app asserting something it was never told. A
+   * Task due at 3pm already surfaces in Google Tasks as due that day, for the same reason —
+   * one point in time is a day, not an interval.
+   *
+   * The cost is real and worth stating: the time of day is dropped on the way out. It is still
+   * exact inside the app, which is the copy that matters.
+   */
   if (!end) {
-    if (start.precision === 'date') {
-      const day = dayOf(start);
-      // End is exclusive, so a single all-day event ends on the following day.
-      return { ...base, start: { date: day }, end: { date: addDays(day, 1) } };
-    }
-    return {
-      ...base,
-      start: { dateTime: start.at, timeZone },
-      end: { dateTime: addMinutes(start.at, ANCHOR_DURATION_MINUTES), timeZone },
-    };
+    const day = dayOf(start);
+    // End is exclusive, so a single all-day event ends on the following day.
+    return { ...base, start: { date: day }, end: { date: addDays(day, 1) } };
   }
 
   if (isAllDay(start, end)) {

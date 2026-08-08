@@ -1,4 +1,4 @@
-import { addDays, ANCHOR_DURATION_MINUTES, toCalendarEvent, toTask } from './mapping';
+import { addDays, toCalendarEvent, toTask } from './mapping';
 import type { Thing, TimePoint } from './thing';
 
 function thing(overrides: Partial<Thing> = {}): Thing {
@@ -95,16 +95,22 @@ describe('toCalendarEvent — anchor', () => {
     expect(event.end).toEqual({ date: '2026-08-08' });
   });
 
-  it('gives a timed anchor a default block, because Google requires end > start', () => {
+  it('resolves a timed anchor to the same all-day slot, inventing no duration', () => {
+    // One time point is a day, not an interval -- the same rule a Task follows. Anything else
+    // would have the app assert a length the user never gave.
     const event = toCalendarEvent(thing({ start: time('2026-08-07T15:00:00.000Z') }), 'UTC');
 
-    expect(event.start).toEqual({ dateTime: '2026-08-07T15:00:00.000Z', timeZone: 'UTC' });
-    expect(event.end).toEqual({
-      dateTime: new Date(
-        Date.parse('2026-08-07T15:00:00.000Z') + ANCHOR_DURATION_MINUTES * 60_000
-      ).toISOString(),
-      timeZone: 'UTC',
-    });
+    expect(event.start).toEqual({ date: '2026-08-07' });
+    expect(event.end).toEqual({ date: '2026-08-08' });
+  });
+
+  it('treats an anchor and a task with the same single time identically', () => {
+    // Both carry exactly one point in time, so both resolve to the same day.
+    const anchorDay = toCalendarEvent(thing({ start: time('2026-08-07T15:00:00.000Z') }), 'UTC');
+    const taskDue = toTask(thing({ end: time('2026-08-07T15:00:00.000Z') })).due;
+
+    expect(anchorDay.start).toEqual({ date: '2026-08-07' });
+    expect(taskDue?.slice(0, 10)).toBe('2026-08-07');
   });
 
   it('refuses to put a Thing with no start on a calendar', () => {
