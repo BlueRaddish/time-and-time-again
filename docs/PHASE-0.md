@@ -23,19 +23,30 @@ about three weeks after the later of the two starts**, regardless of how fast th
 
 ## Track A — Google Cloud, Firebase, OAuth (free, do today)
 
-### A1. Firebase project
+### A1. Firebase project — **DONE 2026-08-12**
 
-1. Create a project at <https://console.firebase.google.com>. Suggested id: `time-and-time-again`.
-2. Enable **Authentication** → Email/Password, Google, Apple.
-3. Enable **Cloud Firestore** in production mode (rules come in phase 3).
-4. Enable **Hosting** — needed sooner than phase 8, see A2.
-5. Register three apps with the identifiers now in `app.json`:
-   - iOS — `com.blueraddish.timeandtimeagain`
-   - Android — `com.blueraddish.timeandtimeagain`
-   - Web
+Run `.\scripts\setup-firebase.ps1` to redo or repair any of this; it is idempotent.
 
-A Firebase project *is* a Google Cloud project, so this also creates the GCP project the
+| | |
+| --- | --- |
+| Project id | **`timeandtimeagain`** — `time-and-time-again` was already taken globally |
+| Console | <https://console.firebase.google.com/project/timeandtimeagain/overview> |
+| Firestore | created, **location `nam5`** (US multi-region) |
+| Security rules | `firestore.rules` deployed and live |
+| Apps registered | Web and Android (`com.blueraddish.timeandtimeagain`). No iOS app — see Track B |
+| Config | written to `.env.local`; the app now starts in Firebase mode |
+
+> **`nam5` is permanent.** The explicit `firestore:databases:create` failed because the
+> Firestore API was not enabled yet on a brand-new project, and the rules deploy then created
+> the database itself using the default location. Kept deliberately: the user is in California,
+> where nam5 is both close and the more durable multi-region option. Anyone re-running this on
+> a fresh project should enable the Firestore API first if they want a specific region.
+
+A Firebase project *is* a Google Cloud project, so this also created the GCP project the
 consent screen lives in. Don't make a separate one.
+
+**Still to do here, all browser-only:** enable Email/Password and Google under
+[Authentication → Sign-in method](https://console.firebase.google.com/project/timeandtimeagain/authentication/providers).
 
 ### A2. Publish the privacy policy
 
@@ -45,7 +56,7 @@ domain you control**. This is why a slice of phase 8 moves here.
 Render `docs/privacy-policy.md` to HTML and deploy it to Firebase Hosting:
 
 ```
-https://time-and-time-again.web.app/privacy
+https://timeandtimeagain.web.app/privacy
 ```
 
 **Why Firebase Hosting rather than GitHub Pages:** Google requires every authorized domain to
@@ -53,8 +64,9 @@ be verified in Search Console, but `web.app` and `firebaseapp.com` domains are *
 authorized* for their own Firebase project. This removes a domain purchase and a verification
 step from the critical path.
 
-Before deploying, fill both placeholders in the policy — `[CONTACT EMAIL]` and `[PUBLIC URL]`
-— and set the effective date.
+The policy's contact address and URL are filled in already. Set the effective date on the day
+it goes live, and read the warning at the top of it about swapping the personal Gmail before
+the Play submission.
 
 ### A3. OAuth consent screen
 
@@ -68,10 +80,10 @@ offerable.
 | App name | Time and Time Again |
 | User support email | _(your email)_ |
 | App logo | 120×120 PNG. **Uploading a logo triggers brand verification** — but it is required for a published app, so do it now rather than twice |
-| Application home page | `https://time-and-time-again.web.app` |
-| Privacy policy link | `https://time-and-time-again.web.app/privacy` |
+| Application home page | `https://timeandtimeagain.web.app` |
+| Privacy policy link | `https://timeandtimeagain.web.app/privacy` |
 | Terms of service link | Optional; skip |
-| Authorized domain | `time-and-time-again.web.app` |
+| Authorized domain | `timeandtimeagain.web.app` |
 | Developer contact | _(your email)_ |
 
 ### A4. Add both scopes — together, in one submission
@@ -151,7 +163,7 @@ must provide in-app deletion *and* a publicly reachable deletion-request URL. So
 phase 5, and the URL goes on the same Firebase Hosting site as the privacy policy:
 
 ```
-https://time-and-time-again.web.app/delete-account
+https://timeandtimeagain.web.app/delete-account
 ```
 
 ### One thing to get right now so iOS stays cheap to re-add

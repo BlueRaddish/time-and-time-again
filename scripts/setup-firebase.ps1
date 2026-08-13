@@ -42,6 +42,21 @@ $repoRoot = Split-Path -Parent $PSScriptRoot
 $envFile = Join-Path $repoRoot '.env.local'
 $androidPackage = 'com.blueraddish.timeandtimeagain'
 
+<#
+  Never redirect a native command's stderr with 2>&1 here.
+
+  Windows PowerShell 5.1 wraps every stderr line from an exe in an ErrorRecord and sets $? to
+  false even when the exe exited 0. firebase-tools writes its progress spinner to stderr, so
+  `firebase ... 2>&1` turns a completely successful call into a terminating NativeCommandError
+  under $ErrorActionPreference = 'Stop'. Let stderr go to the console and judge success by
+  $LASTEXITCODE instead.
+#>
+function Get-FirebaseOutput {
+  param([string[]]$FirebaseArgs)
+  $output = & npx --yes firebase-tools@latest @FirebaseArgs
+  return ($output | Out-String)
+}
+
 function Invoke-Firebase {
   param([string[]]$FirebaseArgs)
   & npx --yes firebase-tools@latest @FirebaseArgs
@@ -54,9 +69,8 @@ function Write-Skip { param([string]$Text) Write-Host "   already done: $Text" -
 # Deliberately not automated. `firebase login` opens a browser and asks for a Google password;
 # that credential is yours and should never pass through a script or a session log.
 Write-Step 'checking that you are signed in'
-$loginCheck = Invoke-Firebase @('login:list') 2>&1 | Out-String
-if ($loginCheck -notmatch '\[.*\]|Logged in as') {
-  Write-Host $loginCheck
+$loginCheck = Get-FirebaseOutput @('login:list')
+if ($loginCheck -notmatch 'Logged in as') {
   Write-Host 'Not signed in. Run this yourself first, then re-run this script:' -ForegroundColor Yellow
   Write-Host '    npx firebase-tools login' -ForegroundColor Yellow
   exit 1
@@ -65,35 +79,39 @@ Write-Host $loginCheck.Trim()
 
 # --- 2. the project ----------------------------------------------------------------------
 Write-Step "creating project $ProjectId"
-$existing = Invoke-Firebase @('projects:list', '--json') 2>&1 | Out-String
+$existing = Get-FirebaseOutput @('projects:list', '--json')
 if ($existing -match [regex]::Escape("`"projectId`": `"$ProjectId`"")) {
   Write-Skip "project $ProjectId exists"
 } else {
   Invoke-Firebase @('projects:create', $ProjectId, '--display-name', 'Time and Time Again')
+  if ($LASTEXITCODE -ne 0) {
+    throw "Could not create $ProjectId. The id may be taken globally -- re-run with -ProjectId <something-else>."
+  }
 }
 
 # --- 3. firestore ------------------------------------------------------------------------
 Write-Step "creating the Firestore database in $Location"
-Write-Host '   this location is permanent -- ctrl+c now if it is wrong' -ForegroundColor Yellow
-try {
-  Invoke-Firebase @('firestore:databases:create', '(default)', '--location', $Location, '--project', $ProjectId)
-} catch {
-  Write-Skip 'database exists (or creation was refused -- check the message above)'
+Write-Host '   this location is permanent and cannot be changed later' -ForegroundColor Yellow
+Invoke-Firebase @('firestore:databases:create', '(default)', '--location', $Location, '--project', $ProjectId)
+if ($LASTEXITCODE -ne 0) {
+  Write-Skip 'database already exists (or the message above says otherwise)'
 }
 
 if (-not $SkipRules) {
   Write-Step 'deploying security rules'
   Invoke-Firebase @('deploy', '--only', 'firestore:rules', '--project', $ProjectId)
+  if ($LASTEXITCODE -ne 0) { throw 'Rules deploy failed. The database may not exist yet.' }
 }
 
 # --- 4. apps ------------------------------------------------------------------------------
 Write-Step 'registering the web and android apps'
-$apps = Invoke-Firebase @('apps:list', '--project', $ProjectId, '--json') 2>&1 | Out-String
+$apps = Get-FirebaseOutput @('apps:list', '--project', $ProjectId, '--json')
 
 if ($apps -match '"platform":\s*"WEB"') {
   Write-Skip 'web app registered'
 } else {
   Invoke-Firebase @('apps:create', 'WEB', 'Time and Time Again (web)', '--project', $ProjectId)
+  if ($LASTEXITCODE -ne 0) { throw 'Could not register the web app.' }
 }
 
 if ($apps -match '"platform":\s*"ANDROID"') {
@@ -101,6 +119,7 @@ if ($apps -match '"platform":\s*"ANDROID"') {
 } else {
   Invoke-Firebase @('apps:create', 'ANDROID', 'Time and Time Again (android)',
     '--package-name', $androidPackage, '--project', $ProjectId)
+  if ($LASTEXITCODE -ne 0) { throw 'Could not register the android app.' }
 }
 
 # --- 5. .env.local -------------------------------------------------------------------------
@@ -112,10 +131,11 @@ if (Test-Path $envFile) {
   Write-Host "   existing file backed up to $(Split-Path -Leaf $backup)" -ForegroundColor DarkGray
 }
 
-$configRaw = Invoke-Firebase @('apps:sdkconfig', 'WEB', '--project', $ProjectId, '--json') | Out-String
+$configRaw = Get-FirebaseOutput @('apps:sdkconfig', 'WEB', '--project', $ProjectId, '--json')
+if ($LASTEXITCODE -ne 0) { throw 'Could not read the web SDK config.' }
 $config = ($configRaw | ConvertFrom-Json).result.sdkConfig
 
-@"
+$envContents = @"
 # Written by scripts/setup-firebase.ps1 on $(Get-Date -Format 'yyyy-MM-dd HH:mm').
 # Gitignored. Safe to regenerate; the two Google client ids below are NOT written by the
 # script and must be pasted in by hand -- see the console steps it printed.
@@ -129,7 +149,13 @@ EXPO_PUBLIC_FIREBASE_APP_ID=$($config.appId)
 
 EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=
 EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID=
-"@ | Out-File -FilePath $envFile -Encoding utf8
+"@
+
+# WriteAllText with an explicit BOM-less encoder, not Out-File -Encoding utf8.
+# Windows PowerShell 5.1's utf8 writes a BOM, and a BOM at the top of a .env file becomes part
+# of the first key's name -- so the first variable silently reads as undefined. It only looks
+# harmless here because line 1 is a comment; reorder the file and it breaks.
+[System.IO.File]::WriteAllText($envFile, $envContents, (New-Object System.Text.UTF8Encoding $false))
 
 Write-Host "   wrote $(Split-Path -Leaf $envFile)"
 

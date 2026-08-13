@@ -107,5 +107,5 @@ email **jeeholife2@gmail.com**.
 
 ## Changes to this policy
 
-If this policy changes materially, the updated version will be posted at **https://time-and-time-again.web.app/privacy** with
+If this policy changes materially, the updated version will be posted at **https://timeandtimeagain.web.app/privacy** with
 a new effective date, and — where the change is significant — announced in the app.
