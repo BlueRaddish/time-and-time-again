@@ -195,12 +195,12 @@ below — those are the only deadlines here that are not self-imposed.
 
 | Phase | Work | Status |
 | ----- | ---- | ------ |
-| 0 | Firebase/GCP project · publish the privacy policy · **submit the OAuth consent screen with both scopes** · Play account · `eas init` · line up 12 testers | **not started — console work, blocks 2–4** |
+| 0 | Firebase/GCP project · publish the privacy policy · **submit the OAuth consent screen with both scopes** · Play account · `eas init` · line up 12 testers | project created 2026-08-12; **consent screen not submitted, sign-in providers not enabled** |
 | 1 | Core CRUD, local state, quick capture, the five views | **done 2026-07-28** |
 | 2 | Firebase Auth: email/password + Google. **Ends by cutting the first closed-track Play build** | code done 2026-08-07; build not cut |
 | 3 | Firestore sync, security rules, offline persistence | code done 2026-08-07 |
 | 4 | Calendar + Tasks one-way sync (Cloud Function, refresh token, `invalid_grant` handling) | code done 2026-08-07 |
-| 5 | Push notifications, polish, account deletion — in-app **and** the public request URL | not started |
+| 5 | Push notifications, polish, account deletion — in-app **and** the public request URL | deletion + settings done 2026-08-14; notifications not started |
 | 6 | Play listing: icon, feature graphic, screenshots, copy, Data safety form | not started |
 | 7 | Production-access application + Play review | not started |
 | 8 | Web deploy via Firebase Hosting — mostly already done in phase 0 | not started |

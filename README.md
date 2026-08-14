@@ -61,10 +61,14 @@ src/
     firebase.ts         the one place Firebase starts; null when unconfigured
     firebase-config.ts  environment config, and the local-only switch
     auth-providers.ts   sign-in methods as data, not as buttons
-  data/                 async-storage, firestore, and the caching decorator over both
+  data/
+    firestore-repository.ts   the remote store, scoped by uid
+    async-storage-repository.ts  the local mirror, and phase 1's whole store
+    outbox.ts             queued writes and the rules for collapsing them
+    offline-repository.ts mirror for reads, durable outbox for writes
   store/                Things, auth, and the repository selector
-  components/           quick capture, rows, lists, tab bars, the sign-in gate
-  app/                  five routes, each a thin filter
+  components/           quick capture, rows, lists, tab bars, sign-in, settings
+  app/                  six routes, each a thin filter
 
 functions/src/          Cloud Functions — one-way sync to Google
   thing.ts              mirrored domain model; must not diverge from src/types/thing.ts
@@ -77,12 +81,14 @@ firestore.rules         uid-scoped; denies clients the stored refresh token outr
 
 ## Status
 
-Phases 1–4 are written. Phase 1 (local CRUD, capture, the five views) is verified and running.
-Phases 2–4 — accounts, Firestore sync, and Google Calendar/Tasks sync — are typechecked and
-unit-tested but have **never run against a real Firebase project**, because phase 0 has not
-been done yet. See `docs/PHASE-0.md`.
+Phases 1–5 are written. The Firebase project (`timeandtimeagain`) exists, its security rules
+are deployed and enforcing, and `.env.local` is wired — so the app now starts in Firebase mode.
 
-**The app runs today with no configuration at all.** With no Firebase environment variables
-set, it behaves exactly as it did in phase 1: no sign-in step, Things stored on the device.
-Fill in `.env.local` from `.env.example` and the same build gains accounts and sync. That
-switch is `isFirebaseConfigured()` in `src/lib/firebase-config.ts`.
+What has actually been exercised end to end is phase 1 plus the build: 167 tests, a clean
+production web export, and hosting verified serving `/privacy` and `/delete-account`. What has
+**not** been exercised is anyone signing in — the sign-in providers are still switched off in
+the Firebase console, which is browser-only work. See `docs/PHASE-0.md`.
+
+**The app still runs with no configuration at all.** Remove the environment variables and it
+behaves exactly as it did in phase 1: no sign-in step, Things stored on the device. That switch
+is `isFirebaseConfigured()` in `src/lib/firebase-config.ts`, and it is deliberately kept alive.
