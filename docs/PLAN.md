@@ -245,7 +245,7 @@ keep deferring stays an informed one.
 
 | # | Item | Why it can wait | Do it by |
 | - | ---- | --------------- | -------- |
-| D1 | **Offline writes do not survive a force-quit.** The Firestore SDK queues writes in memory and flushes on reconnect; kill the app before that and the write is lost, while the local mirror still shows it until the next successful read overwrites it. | Needs a real outbox — per-record sync state and conflict resolution — which is a subsystem, not a patch. Reads already work offline, which is the common case. | Phase 5, before the first closed-track build reaches testers |
+| ~~D1~~ | ~~Offline writes do not survive a force-quit.~~ **Resolved 2026-08-14** — `src/data/outbox.ts` + `offline-repository.ts`. Writes are appended to a durable per-user queue and replayed on the next connection; `list()` flushes before reading so a pending write is never overwritten by a staler server state. Conflict resolution is last-write-wins, stated rather than pretended. | | |
 | D2 | **Swap the privacy-policy contact off a personal Gmail.** Currently `jeeholife2@gmail.com`. | Nothing is published yet, so nothing is exposed yet. | **Phase 6, before anything goes public.** Once live it is scraped and permanent, and changing the consent screen's support email can re-trigger OAuth verification |
 | D3 | **Expo 57.0.8 → 57.0.12** (12 packages behind). **Attempted 2026-08-14 and reverted** — see below. | Blocked upstream, not by us. | When `jest-expo` catches up; re-check with `npx expo install --check` |
 | D4 | **Sign-in has no deep-linkable URL.** It is a gate component, not a route. | Nothing links to it today. | Whenever password reset or email verification lands — those arrive as links that must land somewhere |

@@ -7,7 +7,10 @@
  * Three cases:
  *   - no Firebase project configured  → device-local, phase-1 behaviour
  *   - configured but nobody signed in → device-local (the sign-in gate is up, so unreachable)
- *   - signed in                       → Firestore, mirrored to a per-user local cache
+ *   - signed in                       → Firestore, with a local mirror and a durable outbox
+ *
+ * The mirror and the outbox are both keyed by uid. Two accounts on one device must not read
+ * each other's Things, and must not deliver each other's queued writes.
  */
 
 import { useMemo, type ReactNode } from 'react';
@@ -17,8 +20,9 @@ import {
   cacheKeyForUser,
   createAsyncStorageRepository,
 } from '@/data/async-storage-repository';
-import { createCachingRepository } from '@/data/caching-repository';
+import { createAsyncStorageOutbox, outboxKeyForUser } from '@/data/async-storage-outbox';
 import { createFirestoreRepository } from '@/data/firestore-repository';
+import { createOfflineRepository } from '@/data/offline-repository';
 import type { ThingsRepository } from '@/data/things-repository';
 import { getFirebase } from '@/lib/firebase';
 import { useAuth } from '@/store/auth-provider';
@@ -32,9 +36,10 @@ export function UserThingsProvider({ children }: { children: ReactNode }) {
     const firebase = getFirebase();
     if (!firebase || !uid) return asyncStorageRepository;
 
-    return createCachingRepository(
+    return createOfflineRepository(
       createFirestoreRepository(firebase.db, uid),
-      createAsyncStorageRepository(cacheKeyForUser(uid))
+      createAsyncStorageRepository(cacheKeyForUser(uid)),
+      createAsyncStorageOutbox(outboxKeyForUser(uid))
     );
   }, [uid]);
 
