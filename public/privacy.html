@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy — Time and Time Again</title>
+<meta name="description" content="What Time and Time Again collects, why, and how to delete it.">
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff;
+    --fg: #16181d;
+    --muted: #60646c;
+    --rule: #e4e6ea;
+    --surface: #f6f7f9;
+    --link: #1e5f8f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1114;
+      --fg: #e8eaee;
+      --muted: #a0a6b0;
+      --rule: #2a2e35;
+      --surface: #191c21;
+      --link: #77b6e6;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-text-size-adjust: 100%;
+  }
+  main { max-width: 46rem; margin: 0 auto; padding: 3rem 1.25rem 6rem; }
+  h1 { font-size: 1.9rem; line-height: 1.2; margin: 0 0 .5rem; letter-spacing: -.02em; }
+  h2 { font-size: 1.15rem; margin: 2.5rem 0 .75rem; letter-spacing: -.01em; }
+  p, li { margin: 0 0 1rem; }
+  ul { padding-left: 1.25rem; }
+  a { color: var(--link); text-underline-offset: 3px; }
+  .meta { color: var(--muted); font-size: .9rem; margin-bottom: 2rem; }
+  .meta div { margin: 0; }
+  hr { border: 0; border-top: 1px solid var(--rule); margin: 2.5rem 0; }
+  .table-wrap { overflow-x: auto; margin: 0 0 1rem; }
+  table { border-collapse: collapse; width: 100%; font-size: .95rem; min-width: 30rem; }
+  th, td { text-align: left; padding: .6rem .75rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  th { font-weight: 600; }
+  code { background: var(--surface); padding: .1rem .35rem; border-radius: 3px; font-size: .9em; word-break: break-all; }
+  footer { margin-top: 3rem; padding-top: 1.25rem; border-top: 1px solid var(--rule); color: var(--muted); font-size: .9rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Privacy Policy</h1>
+  <div class="meta">
+    <div>Time and Time Again</div>
+    <div>Last updated: 12 August 2026</div>
+  </div>
+
+  <p>Time and Time Again ("the app") is a to-do and time-tracking app for Android and the web.
+  This policy explains what the app collects, why, and what control you have over it.</p>
+
+  <p>The app is developed by an individual developer.
+  Contact: <a href="mailto:jeeholife2@gmail.com">jeeholife2@gmail.com</a></p>
+
+  <hr>
+
+  <h2>What the app collects</h2>
+
+  <p><strong>Account information.</strong> When you create an account, the app stores your
+  email address and, if you sign in with Google, the account identifier Google returns.
+  Passwords are handled entirely by Firebase Authentication and are never visible to the app
+  or its developer.</p>
+
+  <p><strong>Your content.</strong> The Things you create — titles, notes, start and end
+  times, tags, completion state and recurrence rules — are stored so they can sync between
+  your devices.</p>
+
+  <p><strong>Google account authorization.</strong> If, and only if, you choose to connect
+  Google Calendar or Google Tasks, the app stores an OAuth refresh token so it can write your
+  entries to those services. That token is held server-side in Google Cloud and is never
+  stored on your device or exposed to the app's front end.</p>
+
+  <p><strong>Technical information.</strong> Crash and error diagnostics may be recorded to
+  keep the app working.</p>
+
+  <h2>What the app does not collect</h2>
+  <ul>
+    <li>No advertising identifiers, and no advertising of any kind.</li>
+    <li>No third-party analytics or behavioural tracking.</li>
+    <li>No location data.</li>
+    <li>No contacts, photos, microphone or camera access.</li>
+    <li>Your data is never sold, rented, or shared with third parties for their own purposes.</li>
+  </ul>
+
+  <h2>How Google user data is used</h2>
+
+  <p>If you connect your Google account, the app requests two scopes:</p>
+
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Scope</th><th>What it is used for</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>.../auth/calendar.events</code></td>
+        <td>Creating and updating calendar events that correspond to Things you have given a start time</td>
+      </tr>
+      <tr>
+        <td><code>.../auth/tasks</code></td>
+        <td>Creating and updating tasks that correspond to Things you have given only a due date</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>The app writes only entries that originate from your own Things. It does not read, modify
+  or delete unrelated calendar events or tasks, and it does not use this data to build a
+  profile of you.</p>
+
+  <p><strong>Limited Use disclosure.</strong> The app's use and transfer of information
+  received from Google APIs adheres to the
+  <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API
+  Services User Data Policy</a>, including its Limited Use requirements. Specifically, data
+  obtained through these scopes is used only to provide and improve the app's user-facing sync
+  feature; it is not transferred to others except as necessary to provide that feature, to
+  comply with applicable law, or as part of a merger or acquisition with notice to you; it is
+  not used for advertising; and no human reads it except with your explicit consent, for
+  security purposes, to comply with applicable law, or where the data has been aggregated and
+  anonymised.</p>
+
+  <h2>Where data is stored</h2>
+
+  <p>Account and Thing data is stored using Google Firebase (Firebase Authentication, Cloud
+  Firestore) and Google Cloud Functions, running on Google's infrastructure. A copy of your
+  Things is also held on your device so the app works offline.</p>
+
+  <h2>Deleting your data</h2>
+
+  <p>You can delete your account from inside the app, under <strong>Settings → Delete
+  account</strong>. Doing so permanently removes your account record, all of your Things, and
+  any stored Google authorization token. This cannot be undone.</p>
+
+  <p>Deleting your account does <strong>not</strong> remove events or tasks the app previously
+  created in your Google Calendar or Google Tasks — those now belong to your Google account,
+  and you can delete them there. Disconnecting Google from within the app revokes the stored
+  token so no further writes are possible.</p>
+
+  <p>If you cannot access the app, see
+  <a href="/delete-account">the account deletion page</a> or email
+  <a href="mailto:jeeholife2@gmail.com">jeeholife2@gmail.com</a>. Your data will be deleted
+  within 30 days.</p>
+
+  <h2>Retention</h2>
+
+  <p>Your data is kept for as long as your account exists. When you delete your account it is
+  removed from live systems immediately and from routine backups within 30 days.</p>
+
+  <h2>Children</h2>
+
+  <p>The app is not directed to children under 13, and does not knowingly collect personal
+  information from them.</p>
+
+  <h2>Your rights</h2>
+
+  <p>Depending on where you live, you may have the right to access, correct, export or delete
+  your personal information. Most of this is available directly in the app; for anything else,
+  email <a href="mailto:jeeholife2@gmail.com">jeeholife2@gmail.com</a>.</p>
+
+  <h2>Changes to this policy</h2>
+
+  <p>If this policy changes materially, the updated version will be posted at
+  <a href="https://timeandtimeagain.web.app/privacy">timeandtimeagain.web.app/privacy</a> with
+  a new effective date, and — where the change is significant — announced in the app.</p>
+
+  <footer>
+    <a href="/">Time and Time Again</a> · <a href="/delete-account">Delete your account</a>
+  </footer>
+</main>
+</body>
+</html>

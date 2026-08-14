@@ -13,8 +13,8 @@
 > dedicated address (a `support@` on a domain, or at minimum a separate mailbox) as part of
 > phase 6. Tracked in `PLAN.md` under Deferred.
 
-Time and Time Again ("the app") is a to-do and time-tracking app for iOS, Android and the
-web. This policy explains what the app collects, why, and what control you have over it.
+Time and Time Again ("the app") is a to-do and time-tracking app for Android and the web.
+This policy explains what the app collects, why, and what control you have over it.
 
 The app is developed by an individual developer. Contact: **jeeholife2@gmail.com**
 
@@ -23,9 +23,8 @@ The app is developed by an individual developer. Contact: **jeeholife2@gmail.com
 ## What the app collects
 
 **Account information.** When you create an account, the app stores your email address and,
-if you sign in with Google or Apple, the account identifier those services return. Passwords
-are handled entirely by Firebase Authentication and are never visible to the app or its
-developer.
+if you sign in with Google, the account identifier Google returns. Passwords are handled
+entirely by Firebase Authentication and are never visible to the app or its developer.
 
 **Your content.** The Things you create — titles, notes, start and end times, tags,
 completion state and recurrence rules — are stored so they can sync between your devices.
