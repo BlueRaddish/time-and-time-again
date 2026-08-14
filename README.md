@@ -37,9 +37,11 @@ npm run ios        # requires macOS, or use EAS
 ```
 
 ```bash
-npm test           # Jest, once
+npm test           # Jest, once — covers functions/ too
 npm run test:watch # while working
 npm run typecheck  # tsc --noEmit
+
+cd functions && npm run typecheck   # the functions have their own tsconfig
 ```
 
 Both `npm test` and `npm run typecheck` must be clean before anything merges — see
@@ -53,17 +55,34 @@ src/
   types/thing.test.ts   the derived-type truth table, pinned
   lib/
     nl-parse.ts         natural-language capture ("dentist fri 3pm-4pm")
-    nl-parse.test.ts    capture rules, ranges, and known limitations
     time.ts             TimePoint construction and conversion
     views.ts            one predicate per view; every screen is a filter
     format.ts           display formatting, precision-aware
-  data/                 persistence behind a Firestore-shaped interface
-  store/                the single source of Things
-  components/           quick capture, rows, lists, tab bars
+    firebase.ts         the one place Firebase starts; null when unconfigured
+    firebase-config.ts  environment config, and the local-only switch
+    auth-providers.ts   sign-in methods as data, not as buttons
+  data/                 async-storage, firestore, and the caching decorator over both
+  store/                Things, auth, and the repository selector
+  components/           quick capture, rows, lists, tab bars, the sign-in gate
   app/                  five routes, each a thin filter
+
+functions/src/          Cloud Functions — one-way sync to Google
+  thing.ts              mirrored domain model; must not diverge from src/types/thing.ts
+  mapping.ts            Thing → Calendar event / Google task
+  sync.ts               what to do on a change, as pure data
+  index.ts              the trigger and the connect/disconnect callables
+
+firestore.rules         uid-scoped; denies clients the stored refresh token outright
 ```
 
 ## Status
 
-Phase 1 — local CRUD, capture, and the five views. No accounts, no sync, and no calendar
-integration yet; see `docs/PLAN.md` for the phase breakdown.
+Phases 1–4 are written. Phase 1 (local CRUD, capture, the five views) is verified and running.
+Phases 2–4 — accounts, Firestore sync, and Google Calendar/Tasks sync — are typechecked and
+unit-tested but have **never run against a real Firebase project**, because phase 0 has not
+been done yet. See `docs/PHASE-0.md`.
+
+**The app runs today with no configuration at all.** With no Firebase environment variables
+set, it behaves exactly as it did in phase 1: no sign-in step, Things stored on the device.
+Fill in `.env.local` from `.env.example` and the same build gains accounts and sync. That
+switch is `isFirebaseConfigured()` in `src/lib/firebase-config.ts`.

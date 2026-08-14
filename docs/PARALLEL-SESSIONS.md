@@ -16,7 +16,14 @@ path and every stream stays inside its own.
 | **identity** | `src/app/(auth)/**`, `src/store/auth-provider.tsx`, `src/app/_layout.tsx` | 2, plus the account-deletion flow from 5 |
 | **data** | `src/data/**`, `firestore.rules`, `firestore.indexes.json` | 3 |
 | **surface** | `src/components/**`, `src/app/{index,calendar,tasks,backlog,everything}.tsx`, `src/lib/format.ts` | 5 polish, calendar timeline, Layer 2 settings |
-| **ship** | `app.json`, `eas.json`, `firebase.json`, `functions/**`, `.github/workflows/**`, `assets/**`, store copy | 0, 4 (Cloud Function), 6, 7, 8 |
+| **ship** | `app.json`, `eas.json`, `firebase.json`, `.github/workflows/**`, `assets/**`, store copy | 0, 6, 7, 8 |
+| **sync** | `functions/**`, `src/hooks/use-google-connection.ts` | 4 |
+
+> **`sync` was split out of `ship` on 2026-08-07.** Phase 4 was originally ship's, on the
+> grounds that a Cloud Function is deployment plumbing. It is not — `functions/` is a second
+> package with its own `package.json`, `tsconfig`, test suite and domain model, and it changes
+> for product reasons (a new field to sync) rather than release reasons. Bundling it with store
+> copy and CI config meant one stream owning two unrelated jobs.
 
 `src/types/thing.ts`, `src/lib/{time,nl-parse,views}.ts` and `src/store/things-provider.tsx`
 are **shared core**. Changing them affects every stream, so they are not owned by anyone —
@@ -53,6 +60,7 @@ everyone, so **two sessions started naively will silently serve each other's bun
 | data | `../ttag-data` | `stream/data` | 8082 |
 | surface | `../ttag-surface` | `stream/surface` | 8083 |
 | ship | `../ttag-ship` | `stream/ship` | 8084 |
+| sync | `../ttag-sync` | `stream/sync` | 8085 |
 
 Use the helper rather than doing it by hand:
 
@@ -88,8 +96,15 @@ the table**. Git merges that cleanly. Rewriting or reordering existing rows does
 
 **Shared core** (`src/types/thing.ts`, `src/lib/{time,nl-parse,views}.ts`,
 `src/store/things-provider.tsx`) — no stream changes these unilaterally. A change here ripples
-through all four. Raise it, land it on `main` as its own small commit, and have everyone
+through every stream. Raise it, land it on `main` as its own small commit, and have everyone
 rebase before continuing.
+
+**`functions/src/thing.ts` is part of that shared core**, even though it lives in another
+package. It is a hand-copy of `src/types/thing.ts`, because Firebase deploys `functions/` as a
+self-contained package and an import reaching into `../src` compiles locally then fails at
+deploy. A change to the domain model is a change to *both* files, in the same commit. The
+duplicated truth-table test in `functions/src/thing.test.ts` is what turns a forgotten copy
+into a red suite instead of a silent divergence.
 
 ## 5. The registry
 

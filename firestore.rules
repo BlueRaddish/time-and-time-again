@@ -1,0 +1,81 @@
+rules_version = '2';
+
+// Security rules for Time and Time Again.
+//
+// Two things to know before editing.
+//
+// 1. Rules are a permissive union. If any `match` block grants access to a path, access is
+//    granted — a later `allow ... : if false` cannot take it back. That is why there is no
+//    recursive wildcard under /users: a `match /users/{uid}/{document=**}` would silently
+//    grant clients access to the private subcollection below, no matter what its own rule
+//    says.
+//
+// 2. A `match` on a document does not cover its subcollections. /users/{userId} governs the
+//    user document only; /users/{userId}/things/{id} needs its own block, which it has.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    // A TimePoint is either absent or a complete {at, precision} pair. "A time with no
+    // precision" is unrepresentable in the type system and must stay unrepresentable here.
+    function isTimePoint(value) {
+      return value == null || (
+        value is map
+        && value.keys().hasOnly(['at', 'precision'])
+        && value.keys().hasAll(['at', 'precision'])
+        && value.at is string
+        && (value.precision == 'date' || value.precision == 'time')
+      );
+    }
+
+    function isValidThing(data) {
+      return data.keys().hasOnly([
+               'title', 'notes', 'start', 'end', 'completedAt',
+               'tags', 'recurrenceRule', 'calendarSyncId', 'createdAt', 'updatedAt'
+             ])
+             && data.keys().hasAll(['title', 'createdAt', 'updatedAt'])
+             && data.title is string
+             && data.title.size() > 0
+             && data.title.size() <= 500
+             && (data.notes == null || (data.notes is string && data.notes.size() <= 10000))
+             && isTimePoint(data.start)
+             && isTimePoint(data.end)
+             && (data.completedAt == null || data.completedAt is string)
+             && (data.tags == null || (data.tags is list && data.tags.size() <= 50))
+             && (data.recurrenceRule == null || data.recurrenceRule is string)
+             && (data.calendarSyncId == null || data.calendarSyncId is string)
+             && data.createdAt is string
+             && data.updatedAt is string;
+    }
+
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+
+      match /things/{thingId} {
+        allow read, delete: if isOwner(userId);
+
+        // Validated on the way in as well as on update: a document that only ever passes
+        // validation at creation can be walked into an invalid state one patch at a time.
+        allow create, update: if isOwner(userId) && isValidThing(request.resource.data);
+      }
+
+      // The Google OAuth refresh token lives here (phase 4). It is written and read only by
+      // the Cloud Function through the Admin SDK, which bypasses these rules entirely.
+      // No client, including the token's own owner, may touch it: a refresh token in a client
+      // bundle is a refresh token in everyone's hands.
+      match /private/{document=**} {
+        allow read, write: if false;
+      }
+    }
+
+    // Anything not matched above is denied. Stated rather than implied, so that adding a new
+    // top-level collection is a deliberate act.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -4,22 +4,27 @@
 **Last updated:** 2026-08-07
 
 > **Not yet published.** This is the source text. It must be served at a stable public URL
-> before the Google OAuth consent screen can be submitted — see `docs/PHASE-0.md`. Two
-> placeholders below (`[CONTACT EMAIL]`, `[PUBLIC URL]`) must be filled before publishing.
+> before the Google OAuth consent screen can be submitted — see `docs/PHASE-0.md`.
+>
+> ⚠️ **Swap the contact address before the Play store submission.** `jeeholife2@gmail.com` is a
+> personal address standing in for now. Once published it is on a public page, in the Play
+> listing, and on the OAuth consent screen — scraped, permanent, and awkward to change later
+> because updating the consent screen's support email can re-trigger verification. Move it to a
+> dedicated address (a `support@` on a domain, or at minimum a separate mailbox) as part of
+> phase 6. Tracked in `PLAN.md` under Deferred.
 
-Time and Time Again ("the app") is a to-do and time-tracking app for iOS, Android and the
-web. This policy explains what the app collects, why, and what control you have over it.
+Time and Time Again ("the app") is a to-do and time-tracking app for Android and the web.
+This policy explains what the app collects, why, and what control you have over it.
 
-The app is developed by an individual developer. Contact: **[CONTACT EMAIL]**
+The app is developed by an individual developer. Contact: **jeeholife2@gmail.com**
 
 ---
 
 ## What the app collects
 
 **Account information.** When you create an account, the app stores your email address and,
-if you sign in with Google or Apple, the account identifier those services return. Passwords
-are handled entirely by Firebase Authentication and are never visible to the app or its
-developer.
+if you sign in with Google, the account identifier Google returns. Passwords are handled
+entirely by Firebase Authentication and are never visible to the app or its developer.
 
 **Your content.** The Things you create — titles, notes, start and end times, tags,
 completion state and recurrence rules — are stored so they can sync between your devices.
@@ -80,7 +85,7 @@ Google Calendar or Google Tasks — those now belong to your Google account, and
 delete them there. Disconnecting Google from within the app revokes the stored token so no
 further writes are possible.
 
-If you cannot access the app, email **[CONTACT EMAIL]** and your data will be deleted within
+If you cannot access the app, email **jeeholife2@gmail.com** and your data will be deleted within
 30 days.
 
 ## Retention
@@ -97,9 +102,9 @@ information from them.
 
 Depending on where you live, you may have the right to access, correct, export or delete your
 personal information. Most of this is available directly in the app; for anything else,
-email **[CONTACT EMAIL]**.
+email **jeeholife2@gmail.com**.
 
 ## Changes to this policy
 
-If this policy changes materially, the updated version will be posted at **[PUBLIC URL]** with
+If this policy changes materially, the updated version will be posted at **https://timeandtimeagain.web.app/privacy** with
 a new effective date, and — where the change is significant — announced in the app.
