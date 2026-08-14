@@ -195,6 +195,17 @@ Consequences, in order of how much they change the plan:
    to. Waiting for phase 5 polish wastes three weeks.
 3. **The 14 days must be continuous.** If tester count drops below 12, the clock resets.
 
+`eas.json` has a **`closed-testing`** profile that exists for exactly this. It builds an app
+bundle and submits to the `internal` track, which is the fastest route to testers actually
+having the app installed:
+
+```
+eas build --profile closed-testing --platform android
+eas submit --profile closed-testing --platform android
+```
+
+Use it early and often. The build does not have to be good — it has to be installed.
+
 Verify the current numbers before relying on them — this rule has changed twice:
 <https://support.google.com/googleplay/android-developer/answer/14151465>
 
