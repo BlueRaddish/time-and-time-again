@@ -245,11 +245,35 @@ keep deferring stays an informed one.
 
 | # | Item | Why it can wait | Do it by |
 | - | ---- | --------------- | -------- |
-| D1 | **Offline writes do not survive a force-quit.** The Firestore SDK queues writes in memory and flushes on reconnect; kill the app before that and the write is lost, while the local mirror still shows it until the next successful read overwrites it. | Needs a real outbox — per-record sync state and conflict resolution — which is a subsystem, not a patch. Reads already work offline, which is the common case. | Phase 5, before the first closed-track build reaches testers |
+| ~~D1~~ | ~~Offline writes do not survive a force-quit.~~ **Resolved 2026-08-14** — `src/data/outbox.ts` + `offline-repository.ts`. Writes are appended to a durable per-user queue and replayed on the next connection; `list()` flushes before reading so a pending write is never overwritten by a staler server state. Conflict resolution is last-write-wins, stated rather than pretended. | | |
 | D2 | **Swap the privacy-policy contact off a personal Gmail.** Currently `jeeholife2@gmail.com`. | Nothing is published yet, so nothing is exposed yet. | **Phase 6, before anything goes public.** Once live it is scraped and permanent, and changing the consent screen's support email can re-trigger OAuth verification |
-| D3 | **Expo 57.0.8 → 57.0.11** (11 packages behind). | Patch-level; nothing in phases 2–4 depends on it. | Before phase 5 — run `npx expo install --check` on a clean tree so any fallout is its own commit |
+| D3 | **Expo 57.0.8 → 57.0.12** (12 packages behind). **Attempted 2026-08-14 and reverted** — see below. | Blocked upstream, not by us. | When `jest-expo` catches up; re-check with `npx expo install --check` |
 | D4 | **Sign-in has no deep-linkable URL.** It is a gate component, not a route. | Nothing links to it today. | Whenever password reset or email verification lands — those arrive as links that must land somewhere |
 | D5 | **Timed anchors lose their time on the way to Google.** An anchor resolves to an all-day event, matching how a Task resolves to a due date. | Deliberate: one time point is a day, not an interval, and the app should not invent a duration. Exact inside the app either way. | Only if real use shows people want timed blocks — then it is a Layer 2 preference, not a default |
+
+### D3 in detail — why the SDK bump is stuck
+
+`npx expo install --fix` fails with an `ERESOLVE` peer conflict, and it is not a stale
+`node_modules`: a full `rm -rf node_modules && npm install` fails identically.
+
+```
+react-native@0.86.2
+  └─ peerOptional @react-native/jest-preset@0.86.2   ← required exactly
+jest-expo@57.0.4
+  └─ resolves an older @react-native/jest-preset     ← conflict
+```
+
+`react-native@0.86.2` pins `@react-native/jest-preset` to its own exact version, and the
+`jest-expo` that Expo wants alongside it has not published a matching release. So the set of
+versions Expo itself recommends is currently unsatisfiable.
+
+The escape hatches are `--force` and `--legacy-peer-deps`, and both are refused here on
+purpose: they resolve the tree by *ignoring* the constraint, and the constraint is on the Jest
+preset — the thing the merge gates run on. A test suite passing under a knowingly wrong
+resolution is worse than a stale patch version.
+
+Reverted to the committed lockfile with `npm ci`; 146 tests green. Retry after `jest-expo`
+publishes a build matching `react-native` 0.86.2.
 
 ## Decision log
 
